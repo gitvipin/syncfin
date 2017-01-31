@@ -1,14 +1,22 @@
 #!/usr/bin/env python
 '''
 This module provides utilities for web scrapping the financial data.
-'''
 
-import urllib.request as request
-import urllib.parse as parse
+In general data is available from: 
+ - http://dev.markitondemand.com/MODApis/
+ - http://finance.yahoo.com
+ - http://finance.google.com 
+
+ TODO : Make sure you are not violating any copyright.
+
+'''
+import argparse
 import csv
 import codecs
-import pprint
-import pdb
+import urllib.request as request
+import urllib.parse as parse
+
+import sys
 
 class SyncfinWebScrapper(object):
     def __init__(self):
@@ -19,13 +27,14 @@ class SyncfinStockScrapper(SyncfinWebScrapper):
     def __init__(self):
         pass
 
+
 class SyncfinStockYahooScrapper(SyncfinWebScrapper):
     def __init__(self, tickers, fields=None):
         '''
         Scraps the financial data for symbols provided in 'tickers'. 'fields'
         is the list of parameters which are tracked. 
         '''
-        self.tickers = tickers
+        self.tickers = set(tickers)     # uniquify the list. Remove duplicates.
         self.fields = None
         self.cols = None
         self.url = None
@@ -59,9 +68,18 @@ class SyncfinStockYahooScrapper(SyncfinWebScrapper):
         return csv.reader(data)
 
 if __name__ == '__main__':
-    pdb.set_trace()
-    for row in SyncfinStockYahooScrapper(['YHOO','GOOG']).run():
-        print (row)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--stocks',
+        help="Get financial data of stock(s). Use: -s 'YHOO GOOG AAPL'")
+
+    args = parser.parse_args()
+
+    if len(sys.argv) <=1:
+        parser.print_usage()
+    elif args.stocks:
+        tickers = args.stocks.split()
+        for row in SyncfinStockYahooScrapper(tickers).run():
+            print (row)
 
 
 
