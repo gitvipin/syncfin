@@ -5,6 +5,7 @@ value of a stock.
 '''
 
 class IntrinsicValue(object):
+<<<<<<< HEAD
     def __init__(self, gr, mos):
 	# Expected Growth rate for next 5 years.
 	self.gr = float(gr)	# growth rate
@@ -14,6 +15,10 @@ class IntrinsicValue(object):
 
 	# Adjusted Growth rate
 	self.agr = self.gr * (1 - self.mos/100)
+=======
+    def __init__(self, ):
+        pass
+>>>>>>> ae0f9bce3abf76e2a2e3df7e0cdbbb18c238705d
 
 class PTE_IntrinsicValue(IntrinsicValue):
     def __init__(self, pe, eps, gr, dr=10, mos=25, years=5):
@@ -24,6 +29,7 @@ class PTE_IntrinsicValue(IntrinsicValue):
 	# Earnings per Share : for last 12 months.
         self.eps = float(eps)	# earnings per share
 
+<<<<<<< HEAD
 	# Number of years
 	self.years = float(years)
 
@@ -34,6 +40,24 @@ class PTE_IntrinsicValue(IntrinsicValue):
 
         self._npv, self._ivalue = None, None
         super(PTE_IntrinsicValue, self).__init__(gr, mos)
+=======
+	# Expected Growth rate for next 5 years.
+	self.gr = float(gr)	# growth rate
+
+	# Margin of safety - should be between 15 to 25
+	self.mos = float(mos)
+
+	# Adjusted Growth rate
+	self.agr = self.gr * (1 - self.mos/100)
+
+	# Number of years
+	self.years = float(years)
+
+        # Discount rate
+        self.dr = float(dr)
+
+        self._npv, self._ivalue = None, None
+>>>>>>> ae0f9bce3abf76e2a2e3df7e0cdbbb18c238705d
 
     def get_value(self):
         if self._ivalue:
@@ -48,6 +72,7 @@ class PTE_IntrinsicValue(IntrinsicValue):
         return self._npv, self._ivalue
 
 class DCF_IntrinsicValue(IntrinsicValue):
+<<<<<<< HEAD
     """
     DCF Model takes trailing 12 months Free Cash Flow and projects this 10 years
     into the future by multiplying it with an expected growth rate.
@@ -56,6 +81,9 @@ class DCF_IntrinsicValue(IntrinsicValue):
         # Free cash flow - It is the cash from operating activities - cash from
         # capital expenditures.
         self.fcf
+=======
+    def __init__(self):
+>>>>>>> ae0f9bce3abf76e2a2e3df7e0cdbbb18c238705d
         pass
 
 class ROE_IntrinsicValue(IntrinsicValue):
