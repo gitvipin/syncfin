@@ -1,0 +1,7 @@
+# SYNCFIN dependencies
+requests==2.24.0
+pali
+pyportfolioopt==1.2.7 
+sql30 >= 0.1.5
+wavefront-sdk-python>=1.1.1
+wavefront-api-client==2.33.15

@@ -32,6 +32,20 @@ class SyncfinConfig(object):
 
         print ("\n")
 
+_params = {}
+
+def get_param(param):
+    """
+    """
+    return _params.get(param, None)
+
+def set_param(param, val):
+    """
+    """
+    _params[param] = val
+
+set_param['TESTBED_NAME'] = 'SYNCFIN'
+set_param['TEST_ID'] ='SYNCFIN'
 
 if __name__ == '__main__':
     SyncfinConfig().print_me()
