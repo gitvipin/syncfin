@@ -1,0 +1,11 @@
+
+1. Give me a list of stocks that have started coming from their trough.
+
+2. Give me a list of stocks which are X% below fair price based on Morning star
+
+3. Give me a list of stocks which are Z% below their peak and have Motley Fool
+   recommendation.
+
+4. Give me top 3 most volatile stocks in last 6 months.
+
+5. 

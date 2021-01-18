@@ -1,6 +1,6 @@
 import logging
 
-import syncfin.config as conf
+import syncfin.core.config as conf
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +21,6 @@ def _get_wf_proxy_send():
     metrics_port = conf.get_param('WAVEFRONT_PROXY_METRICS_PORT')
     distribution_port = conf.get_param('WAVEFRONT_PROXY_DISTRIBUTION_PORT')
     tracing_port = conf.get_param('WAVEFRONT_PROXY_TRACING_PORT')
-    event_port = conf.get_param('WAVEFRONT_PROXY_EVENT_PORT')
 
     return WavefrontProxyClient(
         host=host,
@@ -52,22 +51,32 @@ class WavefrontRecorder(object):
 
     def __init__(self):
         self._client = _get_wf_sender()
-        self._testbed = conf.get_param('TESTBED_NAME')
-        self._testid = str(conf.get_param('TEST_ID'))
+        self._testbed = conf.get_param('TESTBED_NAME') or ''
+        self._testid = conf.get_param('TEST_ID') or ''
+        self._enabled = True
+    
+    @property
+    def enabled(self):
+        return self._enabled
+
+    def prefix(self):
+        return 
 
     def write(self, record):
         if not self.enabled:
             return
-        # assert isinstance(trec, ResourceRecord)
-        prefix = 'syncfin.stocks.'
-        tags = {"datacenter": self._testbed,
-                "test_id": self._testid}
+
+        prefix = 'syncfin.stocks.' + record.tckr + "."
+        tags = {} # {"date": record.date}
+
         for key, val in record.as_dict().items():
-            if key in ['_id', '_timestamp']:
+            if key in ['_id', '_timestamp', 'date']:
+                continue
+            elif key.startswith('_'):
                 continue
             metric = prefix + key
             self._client.send_metric(
-                    name=metric, value=val,
+                    name=metric, value=float(val),
                     timestamp=record.timestamp,
                     source=conf.get_param('WAVEFRONT_SOURCE_TAG'),
                     tags=tags)

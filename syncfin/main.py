@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
 import argparse
+import threading
+import time
+
 import yfinance
 
+import syncfin.core.record  as record
 import syncfin.db.model as mydb
+import syncfin.recorder.wf_client as wavefront
+
 
 class SyncFin(object):
 
@@ -12,7 +18,8 @@ class SyncFin(object):
         This function parses the arguments.
         """
         parser = argparse.ArgumentParser()
-
+        parser.add_argument('-p', '--plot_tckr', nargs='+', type=str,
+                            help="Plot TCKR data in Wavefront.")
         parser.add_argument('-u', '--update_tckr', nargs='+', type=str,
                             help="Update TCKR data in databse.")
 
@@ -43,13 +50,38 @@ class SyncFin(object):
                 }
                 db.write(**values)
 
+    def plot(self, tckr):
+        """
+        Updates 'tckr' history in local database.
+        """
+        recorder = wavefront.WavefrontRecorder()
+        rec = record.TickerRecord(tckr)
+
+        # get historical market data
+        _tckr  = yfinance.Ticker(tckr)
+        hist_data = _tckr.history(period="max")
+        for index, row in hist_data.iterrows():
+            rec._timestamp = int(time.time())
+            rec.date = ('%s' % index).split()[0]
+            _open = round(float(row['Open']), 2)
+            _close = round(float(row['Close']), 2)
+            _high = round(float(row['High']), 2)
+            _low = round(float(row['Low']), 2)
+
+            rec.volatility  = round(( _high - _low) * 100 / _close, 2)
+            recorder.write(rec)
+            time.sleep(1)
+
     def main(self):
-        import pdb ; pdb.set_trace()
         self.parse_args()
 
         if self.args.update_tckr:
             for tckr in self.args.update_tckr:
                 self.update(tckr)
+
+        if self.args.plot_tckr:
+            for tckr in self.args.plot_tckr:
+                self.plot(tckr)
 
 if __name__ == '__main__':
     SyncFin().main()
