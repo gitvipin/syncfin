@@ -8,6 +8,7 @@ import yfinance
 
 import syncfin.core.record  as record
 import syncfin.utils.fetch as fetch
+import syncfin.utils.report as report
 import syncfin.recorder.wf_client as wavefront
 
 
@@ -22,6 +23,8 @@ class SyncFin(object):
                             help="List of files to read tckr from.")
         parser.add_argument('-p', '--plot_tckr', action='store_true',
                             help="Plot TCKR data in Wavefront.")
+        parser.add_argument('-r', '--report', action='store_true',
+                            help="Print report.")
         parser.add_argument('-u', '--update_tckr', action='store_true',
                             help="Update TCKR data in databse.")
         parser.add_argument('-t', '--ticker', nargs='+', type=str,
@@ -54,7 +57,7 @@ class SyncFin(object):
     def main(self):
         self.parse_args()
 
-        import pdb ; pdb.set_trace()
+
         tckrs = []
         if self.args.ticker:
             tckrs = [tckr for tckr in self.args.ticker]
@@ -74,6 +77,9 @@ class SyncFin(object):
 
         if self.args.update_tckr:
             fetch.TickerPull().update_till_today(tckrs)
+
+        if self.args.report:
+            report.Report().min_max(tckrs)
 
         if self.args.plot_tckr:
             for tckr in tckrs:

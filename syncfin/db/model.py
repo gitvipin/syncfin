@@ -1,8 +1,4 @@
-
-
-from sql30 import db
-
-# reviews.py
+#!/usr/bin/env python
 from sql30 import db
 
 
