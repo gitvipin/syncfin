@@ -19,6 +19,8 @@ class SyncFin(object):
         This function parses the arguments.
         """
         parser = argparse.ArgumentParser()
+        parser.add_argument('-d', '--days', type=str,
+                            help="Number of days")
         parser.add_argument('-f', '--file_tckr', nargs='+', type=str,
                             help="List of files to read tckr from.")
         parser.add_argument('-p', '--plot_tckr', action='store_true',
@@ -75,11 +77,13 @@ class SyncFin(object):
                 except Exception as _:
                     pass
 
+        days = int(self.args.days) if self.args.days else 45
+
         if self.args.update_tckr:
             fetch.TickerPull().update_till_today(tckrs)
 
         if self.args.report:
-            report.Report().min_max(tckrs)
+            report.Report().summary(tckrs, days)
 
         if self.args.plot_tckr:
             for tckr in tckrs:
