@@ -30,6 +30,11 @@ class Positions(object):
                     date, fund, company, ticker, _, shares, mvalue, weight = line.split(',')
                     # TODO: Convert date to standard format.
                     date = '-'.join(date.split('/')[::-1])
+
+                    if _db.read(date=date, fund=fund, ticker=ticker):
+                        # If entry is already present for a ticker in a fund on a given date,
+                        # do not create duplicate entry and ignore it.
+                        continue
                     _db.write(date=date,
                             fund=fund,
                             company=company,
