@@ -9,6 +9,7 @@ import yfinance
 import syncfin.core.record  as record
 import syncfin.utils.fetch as fetch
 import syncfin.utils.report as report
+import syncfin.utils.positions as positions
 import syncfin.recorder.wf_client as wavefront
 
 
@@ -21,6 +22,8 @@ class SyncFin(object):
         parser = argparse.ArgumentParser()
         parser.add_argument('-d', '--days', type=str,
                             help="Number of days")
+        parser.add_argument('-e', '--etfs', action='store_true',
+                            help="Work on ETFs.")
         parser.add_argument('-f', '--file_tckr', nargs='+', type=str,
                             help="List of files to read tckr from.")
         parser.add_argument('-p', '--plot_tckr', action='store_true',
@@ -81,6 +84,8 @@ class SyncFin(object):
 
         if self.args.update_tckr:
             fetch.TickerPull().update_till_today(tckrs)
+            if self.args.update_tckr:
+                positions.Positions().update()
 
         if self.args.report:
             report.Report().summary(tckrs, days)

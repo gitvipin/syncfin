@@ -37,7 +37,51 @@ class Ticker(db.Model):
         self.create_table(schema)
 
 
-class Stock(db.Model):
+class PositionsDB(db.Model):
+    """
+    Holds the information on a Ticker about how much position
+    an ETF is holding in the ticker.
+    """
+    TABLE = 'positions'
+    DB_SCHEMA = {
+        'db_name': './positions.db',
+        'tables': [{
+            'name': TABLE,
+            'fields': {
+                'date': 'text',
+                'fund': 'text',
+                'company': 'text',
+                'ticker': 'text',
+                'shares': 'text',
+                'mvalue': 'text',
+                'weight': 'text',
+                'note': 'text',
+            }
+            }
+        ]
+    }
+
+class EventsDB(db.Model):
+    """
+    Holds the events on a Ticker. Event can be coming from Buy / Sell
+    of a stock tcker from an ETF or can be manually entered.
+    """
+    TABLE = 'events'
+    DB_SCHEMA = {
+        'db_name': './events.db',
+        'tables': [{
+            'name': TABLE,
+            'fields': {
+                'date': 'text',
+                'impact': 'text',   # Impact can be a tckr or 'GLOBAL'
+                },
+            'primary_key': 'date'
+            }
+        ]
+    }
+
+
+class StockInfo(db.Model):
     """
     Holds the general information about stocks.
     Their Ticker, Motley Fool recommendation, Morning Star price range
@@ -49,28 +93,12 @@ class Stock(db.Model):
             'name': TABLE,
             'fields': {
                 'tckr': 'text',
-                'fool': 'text',     # Motley fool recommendation
+                'date': 'text',     # Motley fool recommendation
                 'morn': 'text',     # Morning Star price
                 'fair': 'text',
                 'price_low': 'text',
                 'price_range': 'text'
             },
-            'primary_key': 'date'
-            }
-        ]
-    }
-
-
-class Events(db.Model):
-    TABLE = 'events'
-    DB_SCHEMA = {
-        'db_name': './stocks.db',
-        'tables': [{
-            'name': TABLE,
-            'fields': {
-                'date': 'text',
-                'impact': 'text',   # Impact can be a tckr or 'GLOBAL'
-                },
             'primary_key': 'date'
             }
         ]

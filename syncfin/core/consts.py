@@ -26,7 +26,6 @@ class SystemConstants(Constants):
     THREADS_JOIN_TIMEOUT = 5
 
 
-
 class RecorderConstants(Constants):
     _NAME = "Data Recording"
     WAVEFRONT_TRAFFIC_RECORDING = os.environ.get('WAVEFRONT_TRAFFIC_RECORDING',
@@ -46,6 +45,11 @@ class WavefrontConstants(Constants):
     WAVEFRONT_SOURCE_TAG = os.environ.get('WAVEFRONT_SOURCE', socket.gethostname())
 
 
+class SyncfinConstants(Constants):
+    _NAME = "Syncfin Constants"
+    SYNCFIN_FUND_FILES = os.environ.get('SYNCFIN_FUND_FILES', '')
+
+
 def get_categories():
     """
     Returns list of all the constant categories.
@@ -53,7 +57,8 @@ def get_categories():
     return [
         SystemConstants,
         RecorderConstants,
-        WavefrontConstants
+        WavefrontConstants,
+        SyncfinConstants
     ]
 
 
