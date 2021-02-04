@@ -48,6 +48,7 @@ class WavefrontConstants(Constants):
 class SyncfinConstants(Constants):
     _NAME = "Syncfin Constants"
     SYNCFIN_FUND_FILES = os.environ.get('SYNCFIN_FUND_FILES', '')
+    SYNCFIN_FUND_DIRS = os.environ.get('SYNCFIN_FUND_DIRS', '')
 
 
 def get_categories():

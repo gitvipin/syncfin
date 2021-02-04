@@ -2,11 +2,13 @@
 import collections
 import datetime
 import logging
+import os
 
 
 import syncfin.db.model as mydb
 import syncfin.core.config as config
 
+from prettytable import PrettyTable
 
 log = logging.getLogger(__name__)
 
@@ -47,12 +49,58 @@ class Positions(object):
                     log.info("Skipped line : %s", line)
                     log.error('%r' % err)
 
+    def _update_from_file(self, fund_file):
+            try:
+                self.parse_and_save(fund_file)
+            except Exception as _:
+                log.error("Error in updating - %s", fund_file)
 
-    def update(self):
+    def _update_from_files(self):
         fund_files = config.get_param('SYNCFIN_FUND_FILES')
         if not fund_files:
             return
-        fund_files = [x for x in config.get_param('SYNCFIN_FUND_FILES').split(';') if x]
+        fund_files = [x for x in fund_files.split(';') if x]
 
         for fund_file in fund_files:
-            self.parse_and_save(fund_file)
+            self._update_from_file(fund_file)
+
+    def _update_from_dirs(self):
+        funds_dirs = config.get_param('SYNCFIN_FUND_DIRS')
+        if not funds_dirs:
+            return
+
+        funds_dirs = [x for x in funds_dirs.split(';') if x]
+        # Add info from all the files in directory.
+        for funds_dir in funds_dirs:
+            for root, _, files in os.walk(funds_dir):
+                for fpath in files:
+                    self._update_from_file(os.path.join(root, fpath))
+
+    def update(self):
+        """
+        Update database from CSV files of respective ETFs.
+        ETFs must be in ./data/sample_etf.csv format.
+        """
+        self._update_from_files()
+        self._update_from_dirs()
+
+    def report(self, tickers):
+        results = collections.defaultdict(list)
+        with mydb.PositionsDB() as _db:
+            _db.table = _db.TABLE
+
+            for ticker in tickers:
+                records = _db.read(ticker=ticker)
+                results[ticker].extend(sorted(records))
+
+        t = PrettyTable(['Date','Fund','Company','Ticker','Shares',
+                         'Market value($) of holding', 'Weight(%)', 'Note'])
+
+        print ("=" * 70)
+        print (" " * 30, " Holdings (in ETFs) ")
+        print ("=" * 70)
+        for ticker in sorted(results):
+            for holding in results[ticker]:
+                t.add_row(holding)
+
+        print(t)

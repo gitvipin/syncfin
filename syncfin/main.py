@@ -84,11 +84,13 @@ class SyncFin(object):
 
         if self.args.update_tckr:
             fetch.TickerPull().update_till_today(tckrs)
-            if self.args.update_tckr:
+            if self.args.etfs:
                 positions.Positions().update()
 
         if self.args.report:
             report.Report().summary(tckrs, days)
+            if self.args.etfs:
+                positions.Positions().report(tckrs)
 
         if self.args.plot_tckr:
             for tckr in tckrs:
