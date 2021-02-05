@@ -10,6 +10,7 @@ import syncfin.core.record  as record
 import syncfin.utils.fetch as fetch
 import syncfin.utils.report as report
 import syncfin.utils.positions as positions
+import syncfin.utils.events as events
 import syncfin.recorder.wf_client as wavefront
 
 
@@ -26,6 +27,8 @@ class SyncFin(object):
                             help="Work on ETFs.")
         parser.add_argument('-f', '--file_tckr', nargs='+', type=str,
                             help="List of files to read tckr from.")
+        parser.add_argument('-i', '--info', action='store_true',
+                            help="Get detailed Information.")
         parser.add_argument('-p', '--plot_tckr', action='store_true',
                             help="Plot TCKR data in Wavefront.")
         parser.add_argument('-r', '--report', action='store_true',
@@ -86,11 +89,15 @@ class SyncFin(object):
             fetch.TickerPull().update_till_today(tckrs)
             if self.args.etfs:
                 positions.Positions().update()
+            if self.args.info:
+                events.Events().update()
 
         if self.args.report:
             report.Report().summary(tckrs, days)
             if self.args.etfs:
                 positions.Positions().report(tckrs)
+            if self.args.info:
+                events.Events().report(tckrs)
 
         if self.args.plot_tckr:
             for tckr in tckrs:

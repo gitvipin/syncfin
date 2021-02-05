@@ -50,6 +50,9 @@ class SyncfinConstants(Constants):
     SYNCFIN_FUND_FILES = os.environ.get('SYNCFIN_FUND_FILES', '')
     SYNCFIN_FUND_DIRS = os.environ.get('SYNCFIN_FUND_DIRS', '')
 
+    SYNCFIN_EVENT_FILES = os.environ.get('SYNCFIN_EVENT_FILES', '')
+    SYNCFIN_EVENT_DIRS = os.environ.get('SYNCFIN_EVENT_DIRS', '')
+
 
 def get_categories():
     """

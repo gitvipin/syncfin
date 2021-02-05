@@ -38,7 +38,6 @@ class Report(object):
         """
         Calculates min max of each tckr for past days.
         """
-        import pdb ; pdb.set_trace
         results = collections.defaultdict(list)
         with mydb.Ticker() as db:
             for tckr in tckrs:
