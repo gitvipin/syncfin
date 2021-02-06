@@ -53,6 +53,8 @@ class SyncfinConstants(Constants):
     SYNCFIN_EVENT_FILES = os.environ.get('SYNCFIN_EVENT_FILES', '')
     SYNCFIN_EVENT_DIRS = os.environ.get('SYNCFIN_EVENT_DIRS', '')
 
+    SYNCFIN_ARK_EVENT_FILES = os.environ.get('SYNCFIN_ARK_EVENT_FILES', '')
+    SYNCFIN_ARK_EVENT_DIRS = os.environ.get('SYNCFIN_ARK_EVENT_DIRS', '')
 
 def get_categories():
     """

@@ -91,6 +91,7 @@ class SyncFin(object):
                 positions.Positions().update()
             if self.args.info:
                 events.Events().update()
+                events.ARKEvents().update()
 
         if self.args.report:
             report.Report().summary(tckrs, days)

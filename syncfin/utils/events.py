@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 
+import xlrd
 
 import syncfin.db.model as mydb
 import syncfin.core.config as config
@@ -14,6 +15,9 @@ log = logging.getLogger(__name__)
 
 
 class Events(object):
+    SYNCFIN_EVENT_FILES_CONST = 'SYNCFIN_EVENT_FILES'
+    SYNCFIN_EVENT_DIR_CONST = 'SYNCFIN_EVENT_DIRS'
+
 
     def parse_and_save(self, fpath):
         """
@@ -53,7 +57,7 @@ class Events(object):
                 log.error("Error in updating - %s", event_file)
 
     def _update_from_files(self):
-        event_files = config.get_param('SYNCFIN_EVENT_FILES')
+        event_files = config.get_param(self.SYNCFIN_EVENT_FILES_CONST)
         if not event_files:
             return
         event_files = [x for x in event_files.split(';') if x]
@@ -62,7 +66,7 @@ class Events(object):
             self._update_from_file(event_file)
 
     def _update_from_dirs(self):
-        event_dirs = config.get_param('SYNCFIN_EVENT_DIRS')
+        event_dirs = config.get_param(self.SYNCFIN_EVENT_DIR_CONST)
         if not event_dirs:
             return
 
@@ -90,7 +94,7 @@ class Events(object):
                 records = _db.read(ticker=ticker)
                 results[ticker].extend(sorted(records))
 
-        t = PrettyTable(['S. No.','Date', 'Ticker', 'ETF', 'Analyst', 'Remarks'])
+        t = PrettyTable(['S. No.','Date', 'Ticker', 'Direction', 'ETF', 'Analyst', 'Remarks'])
 
         print ("=" * 55)
         print (" " * 20, " Events ")
@@ -100,3 +104,69 @@ class Events(object):
                 t.add_row(holding)
 
         print(t)
+
+
+class ARKEvents(Events):
+    SYNCFIN_EVENT_FILES_CONST = 'SYNCFIN_ARK_EVENT_FILES'
+    SYNCFIN_EVENT_DIR_CONST = 'SYNCFIN_ARK_EVENT_DIRS'
+
+    def parse_and_save(self, fpath):
+        """
+        Parses ARK daily trades file and saves it to Events
+        Database.
+        """
+
+        workbook = xlrd.open_workbook(fpath, ignore_workbook_corruption=True)
+        sheet = workbook.sheet_by_name("Sheet1")
+
+        # Header is typically like this
+        # ['FUND', 'Date', 'Direction', 'Ticker', 'CUSIP', 'Name', 'Shares', '% of ETF']
+        header = sheet.row_values(3)
+
+        data = []
+
+        for row in range(4, sheet.nrows):
+            data.append(sheet.row_values(row))
+
+        etfIdx = header.index('FUND')
+        dateIdx = header.index('Date')
+        dirIdx = header.index('Direction')
+        tckrIdx = header.index('Ticker')
+        compIdx = header.index('Name')
+        weightIdx = header.index('% of ETF')
+
+
+        with mydb.EventsDB() as _db:
+            _db.table = _db.TABLE
+            try:
+                sno = int(_db.max('sno') or 1)
+            except ValueError:
+                sno = 0
+
+            for line in data:
+                try:
+                    date = line[dateIdx].strip()
+                    ticker = line[tckrIdx].strip()
+                    etf = line[etfIdx].strip()
+                    direction = line[dirIdx].strip()
+                    company = line[compIdx].strip()
+                    weight = line[weightIdx]
+                    remark = '%s - %s(%s) - %s %% .' % (
+                            direction, ticker, company, weight
+                    )
+                    if _db.read(date=date, direction=direction, etf=etf, remarks=remark):
+                        # If entry is already present for a ticker in a fund on a given date,
+                        # do not create duplicate entry and ignore it.
+                        continue
+                    sno += 1
+                    _db.write(sno=sno,
+                              date=date,
+                              ticker=ticker,
+                              etf=etf,
+                              direction=direction,
+                              analyst='ARK',
+                              remarks=remark)
+
+                except Exception as err:
+                    log.info("Skipped line : %s", line)
+                    log.error('%r' % err)

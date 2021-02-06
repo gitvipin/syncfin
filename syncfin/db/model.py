@@ -72,9 +72,10 @@ class EventsDB(db.Model):
         'tables': [{
             'name': TABLE,
             'fields': {
-                'sno':'text',
+                'sno':'int',
                 'date': 'text',
                 'ticker': 'text',
+                'direction': 'text',
                 'etf': 'text',
                 'analyst': 'text',
                 'remarks': 'text',   # Impact can be a tckr or 'GLOBAL'
