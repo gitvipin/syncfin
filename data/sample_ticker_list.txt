@@ -1,0 +1,7 @@
+# You can specify all the tickers in a file sperated by space.
+# Anu numbers of tickers can be mentioned on one line.
+# Any numbers of lines can be there in a file. Better keep it in chronological
+# order.
+AAPL AMZN
+BLNK
+XLK XLNX ZS

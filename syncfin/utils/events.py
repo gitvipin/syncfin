@@ -15,9 +15,8 @@ log = logging.getLogger(__name__)
 
 
 class Events(object):
-    SYNCFIN_EVENT_FILES_CONST = 'SYNCFIN_EVENT_FILES'
-    SYNCFIN_EVENT_DIR_CONST = 'SYNCFIN_EVENT_DIRS'
-
+    SYNCFIN_EVENT_FILES_CONST = ''
+    SYNCFIN_EVENT_DIRS_CONST = ''
 
     def parse_and_save(self, fpath):
         """
@@ -66,7 +65,7 @@ class Events(object):
             self._update_from_file(event_file)
 
     def _update_from_dirs(self):
-        event_dirs = config.get_param(self.SYNCFIN_EVENT_DIR_CONST)
+        event_dirs = config.get_param(self.SYNCFIN_EVENT_DIRS_CONST)
         if not event_dirs:
             return
 
@@ -85,30 +84,10 @@ class Events(object):
         self._update_from_files()
         self._update_from_dirs()
 
-    def report(self, tickers):
-        results = collections.defaultdict(list)
-        with mydb.EventsDB() as _db:
-            _db.table = _db.TABLE
 
-            for ticker in tickers:
-                records = _db.read(ticker=ticker)
-                results[ticker].extend(sorted(records))
-
-        t = PrettyTable(['S. No.','Date', 'Ticker', 'Direction', 'ETF', 'Analyst', 'Remarks'])
-
-        print ("=" * 55)
-        print (" " * 20, " Events ")
-        print ("=" * 55)
-        for ticker in sorted(results):
-            for holding in results[ticker]:
-                t.add_row(holding)
-
-        print(t)
-
-
-class ARKEvents(Events):
-    SYNCFIN_EVENT_FILES_CONST = 'SYNCFIN_ARK_EVENT_FILES'
-    SYNCFIN_EVENT_DIR_CONST = 'SYNCFIN_ARK_EVENT_DIRS'
+class ARKExcelEvents(Events):
+    SYNCFIN_EVENT_FILES_CONST = 'SYNCFIN_ARK_EXCEL_EVENT_FILES'
+    SYNCFIN_EVENT_DIRS_CONST = 'SYNCFIN_ARK_EXCEL_EVENT_DIRS'
 
     def parse_and_save(self, fpath):
         """
@@ -170,3 +149,97 @@ class ARKEvents(Events):
                 except Exception as err:
                     log.info("Skipped line : %s", line)
                     log.error('%r' % err)
+
+
+class ARKMailEvents(Events):
+    SYNCFIN_EVENT_FILES_CONST = 'SYNCFIN_ARK_MAIL_EVENT_FILES'
+    SYNCFIN_EVENT_DIRS_CONST = 'SYNCFIN_ARK_MAIL_EVENT_DIRS'
+
+    def parse_and_save(self, fpath):
+        """
+        Parses ARK daily trades file and saves it to Events
+        Database.
+        """
+        data = []
+
+        try:
+            with open(fpath, 'r') as fp:
+                data = fp.readlines()
+                data = [x.strip() for x in data]
+        except Exception:
+            log.error("Error in reading file %s", fpath)
+            return
+
+        header = ['S No', 'Fund', 'Date', 'Direction', 'Ticker', 'CUSIP',
+                  'Company', 'Shares', '% of ETF']
+        
+        import pdb ; pdb.set_trace()
+        etfIdx = header.index('Fund')
+        dateIdx = header.index('Date')
+        dirIdx = header.index('Direction')
+        tckrIdx = header.index('Ticker')
+        compIdx = header.index('Company')
+        sharesIdx = header.index('Shares')
+        weightIdx = header.index('% of ETF')
+
+        with mydb.EventsDB() as _db:
+            _db.table = _db.TABLE
+            try:
+                sno = int(_db.max('sno') or 1)
+            except ValueError:
+                sno = 0
+
+            for line in data:
+                try:
+                    line = line.split('\t')
+                    if all([x in line for x in header[1:-1] ]):
+                        continue
+                    ticker = line[tckrIdx].strip()
+                    etf = line[etfIdx].strip()
+                    direction = line[dirIdx].strip()
+                    company = line[compIdx].strip()
+                    weight = line[weightIdx]
+                    shares = line[sharesIdx]
+                    remark = '%s - %s(%s) - %s shares- %s %% weigth.' % (
+                            direction, ticker, company, shares,  weight
+                    )
+                    date = line[dateIdx].strip()
+                    date = '-'.join(date.split('/')[::-1])
+                    if _db.read(date=date, direction=direction, etf=etf, remarks=remark):
+                        # If entry is already present for a ticker in a fund on a given date,
+                        # do not create duplicate entry and ignore it.
+                        continue
+                    sno += 1
+                    _db.write(sno=sno, date=date, ticker=ticker, etf=etf,
+                              direction=direction, analyst='ARK', remarks=remark)
+                except Exception as err:
+                    log.info("Skipped line : %s", line)
+                    log.error('%r' % err)
+                    continue
+
+
+class ARKEvents(object):
+
+    def update(self):
+        ARKExcelEvents().update()
+        ARKMailEvents().update()
+
+    def report(self, tickers):
+        results = collections.defaultdict(list)
+        with mydb.EventsDB() as _db:
+            _db.table = _db.TABLE
+
+            for ticker in tickers:
+                records = _db.read(ticker=ticker)
+                results[ticker].extend(sorted(records))
+
+        t = PrettyTable(['S. No.','Date', 'Ticker', 'Direction', 'ETF', 'Analyst', 'Remarks'])
+
+        print ("=" * 55)
+        print (" " * 20, " Events ")
+        print ("=" * 55)
+        for ticker in sorted(results):
+            for holding in results[ticker]:
+                t.add_row(holding)
+
+        print(t)

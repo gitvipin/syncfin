@@ -90,7 +90,6 @@ class SyncFin(object):
             if self.args.etfs:
                 positions.Positions().update()
             if self.args.info:
-                events.Events().update()
                 events.ARKEvents().update()
 
         if self.args.report:
@@ -98,7 +97,7 @@ class SyncFin(object):
             if self.args.etfs:
                 positions.Positions().report(tckrs)
             if self.args.info:
-                events.Events().report(tckrs)
+                events.ARKEvents().report(tckrs)
 
         if self.args.plot_tckr:
             for tckr in tckrs:
