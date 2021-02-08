@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import json
 import threading
 import time
 
@@ -27,6 +28,8 @@ class SyncFin(object):
                             help="Work on ETFs.")
         parser.add_argument('-f', '--file_tckr', nargs='+', type=str,
                             help="List of files to read tckr from.")
+        parser.add_argument('-g', '--groups', nargs='+', type=str,
+                            help="List of Ticker groups.")
         parser.add_argument('-i', '--info', action='store_true',
                             help="Get detailed Information.")
         parser.add_argument('-p', '--plot_tckr', action='store_true',
@@ -62,26 +65,50 @@ class SyncFin(object):
             recorder.write(rec)
             time.sleep(1)
 
+    def  _process_tckrs(self, data):
+        ans = []
+        if isinstance(data, str):
+            ans = data.split(' ')
+        elif isinstance(data, list):
+            for item in data:
+                ans.extend(self._process_tckrs(item))
+
+        ans = [x.strip() for x in ans]
+        ans = [x.strip(',') for x in ans]
+        return ans
+
     def main(self):
         self.parse_args()
 
-
         tckrs = []
+
         if self.args.ticker:
             tckrs = [tckr for tckr in self.args.ticker]
         elif self.args.file_tckr:
+            _tckrs_info = {}
             for fpath in self.args.file_tckr:
                 try:
                     with open(fpath, 'r') as fp:
-                        lines = fp.readlines()
-                        lines = [x.strip() for x in lines]
-
-                        for line in lines:
-                            for tckr in line.split(' '):
-                                if tckr:
-                                    tckrs.append(tckr)
+                        _tckrs_info.update(json.load(fp))
                 except Exception as _:
                     pass
+
+            if self.args.groups:
+                invalids = []
+                for group in self.args.groups:
+                    if group not in _tckrs_info:
+                        invalids.append(group)
+                        continue
+                    tckrs.extend(self._process_tckrs(_tckrs_info.get(group)['tickers']))
+
+                if invalids:
+                    print ("Invalid Group(s) : %r", invalids)
+                    print ("Valid Group(s) are: %r", list(_tckrs_info.keys()))
+            else:
+                for group, info in _tckrs_info.items():
+                    tckrs.extend(self._process_tckrs(info['tickers']))
+
+            tckrs = list(set(tckrs))
 
         days = int(self.args.days) if self.args.days else 45
 

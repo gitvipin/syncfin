@@ -173,7 +173,6 @@ class ARKMailEvents(Events):
         header = ['S No', 'Fund', 'Date', 'Direction', 'Ticker', 'CUSIP',
                   'Company', 'Shares', '% of ETF']
         
-        import pdb ; pdb.set_trace()
         etfIdx = header.index('Fund')
         dateIdx = header.index('Date')
         dirIdx = header.index('Direction')

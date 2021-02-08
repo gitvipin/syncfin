@@ -42,9 +42,10 @@ class Report(object):
         with mydb.Ticker() as db:
             for tckr in tckrs:
                 db.table = tckr
-                data = db.read()
-                if not data:
-                    print ("No data for ", tckr)
+                try:
+                    data = db.read()
+                except Exception:
+                    print ("Cannot read data for .. ", tckr)
                     results[tckr] = [None, None]
                     continue
                 data = data[-days:]

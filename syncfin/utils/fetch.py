@@ -47,8 +47,17 @@ class TickerPull(object):
                 try:
                     self._update_db(db, index, row)
                 except Exception as err:
+                    if 'UNIQUE constraint failed' in err.args[0]:
+                        # Trying to update for same date again.
+                        continue
+                    elif 'cannot convert float NaN to integer' in err.args[0]:
+                        continue
                     log.error("Cannot process %s : %s. \nError - %r ", index, row, err)
 
     def update_till_today(self, tckrs):
         for tckr in tckrs:
-            self.update(tckr)
+            try:
+                self.update(tckr)
+                log.info("%s ... Done", tckr)
+            except Exception as _:
+                log.info("%s ... Skipped due to error", tckr)
