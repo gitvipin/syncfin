@@ -172,7 +172,7 @@ class ARKMailEvents(Events):
 
         header = ['S No', 'Fund', 'Date', 'Direction', 'Ticker', 'CUSIP',
                   'Company', 'Shares', '% of ETF']
-        
+
         etfIdx = header.index('Fund')
         dateIdx = header.index('Date')
         dirIdx = header.index('Direction')

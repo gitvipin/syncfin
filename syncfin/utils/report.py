@@ -46,7 +46,7 @@ class Report(object):
                     data = db.read()
                 except Exception:
                     print ("Cannot read data for .. ", tckr)
-                    results[tckr] = [None, None]
+                    results[tckr] = ('-NA-', '-NA-')
                     continue
                 data = data[-days:]
                 closed = [float(x[4]) for x in data]
