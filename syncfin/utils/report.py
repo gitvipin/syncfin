@@ -41,12 +41,13 @@ class Report(object):
         results = collections.defaultdict(list)
         with mydb.Ticker() as db:
             for tckr in tckrs:
+                if not db.table_exists(tckr):
+                    print ("No data available for ", tckr)
                 db.table = tckr
                 try:
                     data = db.read()
                 except Exception:
-                    print ("Cannot read data for .. ", tckr)
-                    results[tckr] = ('-NA-', '-NA-')
+                    results[tckr] = ('NO DATA', 'NO DATA', '-1', '-1')
                     continue
                 data = data[-days:]
                 closed = [float(x[4]) for x in data]
