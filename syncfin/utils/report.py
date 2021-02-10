@@ -47,11 +47,13 @@ class Report(object):
                 try:
                     data = db.read()
                 except Exception:
-                    results[tckr] = ('NO DATA', 'NO DATA', '-1', '-1')
+                    results[tckr] = (float('-inf'), 'NO DATA', '-1', '-1')
                     continue
                 data = data[-days:]
                 closed = [float(x[4]) for x in data]
-                
+                if not closed:
+                    results[tckr] = (float('-inf'), 'NO DATA', '-1', '-1')
+                    continue
                 down_from_peak, up_from_low = self.get_down_up_percent(closed)
                 bears, bulls = self.get_bear_bull_counts(closed)
                 results[tckr] = down_from_peak, up_from_low, bears, bulls

@@ -203,7 +203,11 @@ class ARKMailEvents(Events):
                             direction, ticker, company, shares,  weight
                     )
                     date = line[dateIdx].strip()
-                    date = '-'.join(date.split('/')[::-1])
+                    date = date.split('/')[::-1]
+                    year = date[0]
+                    month = '%02d' % int(date[2])
+                    day = '%02d' % int(date[1])
+                    date = '-'.join([year, month, day])
                     if _db.read(date=date, direction=direction, etf=etf, remarks=remark):
                         # If entry is already present for a ticker in a fund on a given date,
                         # do not create duplicate entry and ignore it.
