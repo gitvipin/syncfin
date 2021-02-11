@@ -6,6 +6,7 @@ import logging
 import yfinance
 
 import syncfin.db.model as mydb
+import syncfin.utils.parallel as parallel
 
 
 log = logging.getLogger(__name__)
@@ -61,3 +62,36 @@ class TickerPull(object):
                 log.info("%s ... Done", tckr)
             except Exception as _:
                 log.info("%s ... Skipped due to error", tckr)
+
+
+class ProfileUpdate(object):
+
+    def update(self, tckr):
+        with mydb.CompanyProfile() as db:
+            db.table = db.TABLE
+            info = yfinance.Ticker(tckr).info
+
+            values = {}
+            for field in db._get_fields(db.TABLE):
+                if field == 'date':
+                    continue
+                try:
+                    val = info.get(field, '')
+                    if val:
+                        values[field] = val
+                except Exception:
+                    pass    # ignore fields which are not available.
+
+            values['date'] = datetime.datetime.today().strftime('%Y-%m-%d')
+            db.write(**values)
+
+    def _update(self, tckr):
+        try:
+            self.update(tckr)
+            log.info("%s ... Done", tckr)
+        except Exception as _:
+            log.info("%s ... Skipped due to error", tckr)
+
+    def update_all(self, tckrs):
+        params = [(tckr, (tckr,) , {}) for tckr in tckrs]
+        parallel.ThreadPool(self._update, params)

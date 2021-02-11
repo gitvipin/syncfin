@@ -108,3 +108,46 @@ class StockInfo(db.Model):
             }
         ]
     }
+
+
+class CompanyProfile(db.Model):
+    """
+    Holds the general information about stocks.
+    Their Ticker, Motley Fool recommendation, Morning Star price range
+    """
+    TABLE = 'profile'
+    DB_SCHEMA = {
+        'db_name': './profile.db',
+        'tables': [{
+            'name': TABLE,
+            'fields': {
+                'date': 'text',
+                'symbol': 'text',
+                'sector': 'text',       # Sector in which it operates.
+                'category': 'text',
+                'industry': 'text',
+                'fullTimeEmployees': 'text',     # Employee Count
+                'longBusinessSummary': 'text',
+                'dividend': 'text',
+                'fiftyDayAverage': 'text',
+                'twoHundredDayAverage': 'text',
+                'totalAssets': 'text',
+                'yield': 'text',
+                'trailingPE': 'text',
+                'averageVolume10days': 'text',
+                'marketCap': 'text',
+                'ytdReturn': 'text',
+                'volume': 'text',
+                'forwardPE': 'text',
+                'profitMargins': 'text',
+                'morningStarRiskRating': 'text',
+                'threeYearAverageReturn': 'text',
+                'lastSplitDate': 'text',
+                'lastSplitFactor': 'text',
+                'morningStarOverallRating': 'text',
+                'earningsQuarterlyGrowth': 'text',
+                'fiveYearAverageReturn': 'text'
+            }
+            }
+        ]
+    }

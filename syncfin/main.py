@@ -36,10 +36,13 @@ class SyncFin(object):
                             help="Plot TCKR data in Wavefront.")
         parser.add_argument('-r', '--report', action='store_true',
                             help="Print report.")
-        parser.add_argument('-u', '--update_tckr', action='store_true',
-                            help="Update TCKR data in databse.")
+        parser.add_argument('-s', '--summary', action='store_true',
+                            help="Update company profile and summary.")
         parser.add_argument('-t', '--ticker', nargs='+', type=str,
                             help="Ticker.")
+        parser.add_argument('-u', '--update', action='store_true',
+                            help="Update TCKR data in databse.")
+
 
         self.args = parser.parse_args()
 
@@ -112,15 +115,18 @@ class SyncFin(object):
 
         days = int(self.args.days) if self.args.days else 45
 
-        if self.args.update_tckr:
+        if self.args.update:
             fetch.TickerPull().update_till_today(tckrs)
+            if self.args.summary:
+                fetch.ProfileUpdate().update_all(tckrs)
             if self.args.etfs:
                 positions.Positions().update()
             if self.args.info:
                 events.ARKEvents().update()
 
         if self.args.report:
-            report.Report().summary(tckrs, days)
+            report.Report().summary(tckrs, days,
+                                    profile=self.args.summary)
             if self.args.etfs:
                 positions.Positions().report(tckrs)
             if self.args.info:

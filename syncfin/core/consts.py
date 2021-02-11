@@ -24,6 +24,7 @@ class SystemConstants(Constants):
 
     # Wait for 5 seconds while joining the threads.
     THREADS_JOIN_TIMEOUT = 5
+    DEFAULT_CONCURRENCY = 32
 
 
 class RecorderConstants(Constants):

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import collections
 
 from prettytable import PrettyTable
@@ -34,7 +33,31 @@ class Report(object):
 
         return bears, bulls
 
-    def summary(self, tckrs, days=45):
+    def get_profile(self, tckr):
+        with mydb.CompanyProfile() as db:
+            db.table = db.TABLE
+            recs = db.read(symbol=tckr, include_header=True)
+
+            header = recs[0]
+            dateIdx = header.index('date')
+            mcapIdx = header.index('marketCap')
+            empIdx = header.index('fullTimeEmployees')
+            assetIdx = header.index('totalAssets')
+            peIdx = header.index('trailingPE')
+
+            recs.pop(0)
+            recs = sorted(recs, key = lambda x: x[dateIdx])
+
+            record = recs[0]
+            return [
+                record[mcapIdx],
+                record[empIdx],
+                record[assetIdx],
+                record[peIdx]
+            ]
+
+
+    def summary(self, tckrs, days=45, profile=False):
         """
         Calculates min max of each tckr for past days.
         """
@@ -61,9 +84,21 @@ class Report(object):
         print ("=" * 70)
         print (" " * 30, days , " days")
         print ("=" * 70)
-        t = PrettyTable(['TCKR', 'Down from Peak (%)', 'Up from Low (%)', 'Bear Days', 'Bull Days'])
+
+        cols = ['TCKR', 'Down from Peak (%)', 'Up from Low (%)', 'Bear Days', 'Bull Days']
+        if profile:
+            cols.extend(['Market Cap', 'EmpCount', 'Total Assets', 'Trailing P/E'])
+        t = PrettyTable(cols)
         for tckr, vals in sorted(results.items(), key=lambda item: item[1]):
-            t.add_row([tckr, *vals])
+            row = [tckr, *vals]
+            if profile:
+                data = [''] * 4
+                try:
+                    data = self.get_profile(tckr)
+                except Exception:
+                    pass
+                row.extend(data)
+            t.add_row(row)
             # t.add_row([tckr, vals[0], vals[1], vals[2], vals[3]])
 
         print(t)

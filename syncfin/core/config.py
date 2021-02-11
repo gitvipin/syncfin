@@ -47,8 +47,8 @@ def get_configs():
     return configs
 
 
-def get_param(param):
-    return get_configs().get_param(param)
+def get_param(param, default=None):
+    return get_configs().get_param(param) or default
 
 
 def set_param(param, val):
