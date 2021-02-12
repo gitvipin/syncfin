@@ -6,6 +6,7 @@ import os
 
 
 import syncfin.db.model as mydb
+import syncfin.utils.common as common
 import syncfin.core.config as config
 
 from prettytable import PrettyTable
@@ -101,6 +102,8 @@ class Positions(object):
         print ("=" * 70)
         for ticker in sorted(results):
             for holding in results[ticker]:
+                holding = list(holding)
+                holding[5] = common.format_currency(holding[5])
                 t.add_row(holding)
 
         print(t)

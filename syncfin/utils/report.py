@@ -4,6 +4,7 @@ import collections
 from prettytable import PrettyTable
 
 import syncfin.db.model as mydb
+import syncfin.utils.common as common
 
 
 class Report(object):
@@ -50,7 +51,7 @@ class Report(object):
 
             record = recs[0]
             return [
-                record[mcapIdx],
+                common.format_currency(record[mcapIdx]),
                 record[empIdx],
                 record[assetIdx],
                 record[peIdx]
