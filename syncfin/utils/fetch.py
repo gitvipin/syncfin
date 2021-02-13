@@ -34,6 +34,8 @@ class TickerPull(object):
             if db.table_exists(tckr):
                 start_date = db.max('date')
                 end_date = '%s' % datetime.date.today()
+                if start_date == end_date:
+                    return  # Nothing to update.
                 data = yfinance.download(tckr,
                                  start=start_date, end=end_date)
             else:
@@ -56,7 +58,7 @@ class TickerPull(object):
                     log.error("Cannot process %s : %s. \nError - %r ", index, row, err)
 
     def update_till_today(self, tckrs):
-        print ("Updating data for : %s" %  ' '.join(tckrs))
+        print ("Updating Historical data for : %s" %  ' '.join(tckrs))
         for tckr in tckrs:
             try:
                 self.update(tckr)
@@ -89,10 +91,11 @@ class ProfileUpdate(object):
     def _update(self, tckr):
         try:
             self.update(tckr)
-            log.info("%s ... Done", tckr)
+            log.info("%s (Summary) ... Done" % tckr)
         except Exception as _:
-            log.info("%s ... Skipped due to error", tckr)
+            log.info("%s ... Skipped due to error" % tckr)
 
     def update_all(self, tckrs):
+        print ("Updating Historical data for : %s" %  ' '.join(tckrs))
         params = [(tckr, (tckr,) , {}) for tckr in tckrs]
         parallel.ThreadPool(self._update, params)

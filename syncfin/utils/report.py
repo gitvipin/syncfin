@@ -100,7 +100,6 @@ class Report(object):
                     pass
                 row.extend(data)
             t.add_row(row)
-            # t.add_row([tckr, vals[0], vals[1], vals[2], vals[3]])
 
         print(t)
         return results

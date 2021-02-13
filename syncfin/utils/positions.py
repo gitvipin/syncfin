@@ -75,6 +75,8 @@ class Positions(object):
         for funds_dir in funds_dirs:
             for root, _, files in os.walk(funds_dir):
                 for fpath in files:
+                    if fpath.startswith('.'):
+                        continue
                     self._update_from_file(os.path.join(root, fpath))
 
     def update(self):

@@ -74,6 +74,8 @@ class Events(object):
         for event_dir in event_dirs:
             for root, _, files in os.walk(event_dir):
                 for fpath in files:
+                    if fpath.startswith('.'):
+                        continue
                     self._update_from_file(os.path.join(root, fpath))
 
     def update(self):

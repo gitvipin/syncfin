@@ -22,6 +22,8 @@ class SyncFin(object):
         This function parses the arguments.
         """
         parser = argparse.ArgumentParser()
+        parser.add_argument('-a', '--ancient', action='store_true',
+                            help="Update ancient/hitorical data.")
         parser.add_argument('-d', '--days', type=str,
                             help="Number of days")
         parser.add_argument('-e', '--etfs', action='store_true',
@@ -116,7 +118,8 @@ class SyncFin(object):
         days = int(self.args.days) if self.args.days else 45
 
         if self.args.update:
-            fetch.TickerPull().update_till_today(tckrs)
+            if self.args.ancient:
+                fetch.TickerPull().update_till_today(tckrs)
             if self.args.summary:
                 fetch.ProfileUpdate().update_all(tckrs)
             if self.args.etfs:
