@@ -111,7 +111,7 @@ class SyncFin(object):
                 for group, info in _tckrs_info.items():
                     tckrs.extend(self._process_tckrs(info['tickers']))
 
-            tckrs = list(set(tckrs))
+            tckrs = [x for x in list(set(tckrs)) if x]
 
         days = int(self.args.days) if self.args.days else 45
 

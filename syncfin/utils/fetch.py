@@ -32,17 +32,17 @@ class TickerPull(object):
         """
         with mydb.Ticker() as db:
             if db.table_exists(tckr):
-                db.table = tckr
                 start_date = db.max('date')
                 end_date = '%s' % datetime.date.today()
                 data = yfinance.download(tckr,
                                  start=start_date, end=end_date)
             else:
                 db.add_new_table(tckr)
-                db.table = tckr
                 _tckr  = yfinance.Ticker(tckr)
                 # get historical market data
                 data = _tckr.history(period="max")
+
+            db.set_table(tckr)
             
             for index, row in data.iterrows():
                 try:
@@ -56,12 +56,13 @@ class TickerPull(object):
                     log.error("Cannot process %s : %s. \nError - %r ", index, row, err)
 
     def update_till_today(self, tckrs):
+        print ("Updating data for : %s" %  ' '.join(tckrs))
         for tckr in tckrs:
             try:
                 self.update(tckr)
-                log.info("%s ... Done", tckr)
+                print("%s ... Done" % tckr)
             except Exception as _:
-                log.info("%s ... Skipped due to error", tckr)
+                print("%s ... Skipped due to error" % tckr)
 
 
 class ProfileUpdate(object):

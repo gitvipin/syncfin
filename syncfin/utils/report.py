@@ -67,7 +67,7 @@ class Report(object):
             for tckr in tckrs:
                 if not db.table_exists(tckr):
                     print ("No data available for ", tckr)
-                db.table = tckr
+                db.set_table(tckr)
                 try:
                     data = db.read()
                 except Exception:

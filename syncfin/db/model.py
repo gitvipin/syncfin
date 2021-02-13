@@ -28,13 +28,19 @@ class Ticker(db.Model):
         super(Ticker, self).__init__(*args, **kwargs)
         self.fetch_schema()
 
+    def table_name(self, tckr):
+        return '_%s_' % tckr
+
     def add_new_table(self, tckr):
         if self.table_exists(tckr):
             return
-        schema = {k: v for k, v in self.TABLE_SCHEMA.items()}
-        schema['name'] = tckr
+        schema = dict(self.TABLE_SCHEMA)
+        schema['name'] = self.table_name(tckr)
         self.DB_SCHEMA['tables'].append(schema)
         self.create_table(schema)
+
+    def set_table(self, tckr):
+        self.table = self.table_name(tckr)
 
 
 class PositionsDB(db.Model):
