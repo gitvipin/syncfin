@@ -236,13 +236,13 @@ class ARKEvents(object):
                 records = _db.read(ticker=ticker)
                 results[ticker].extend(sorted(records))
 
-        t = PrettyTable(['S. No.','Date', 'Ticker', 'Direction', 'ETF', 'Analyst', 'Remarks'])
+        t = PrettyTable(['Date', 'Ticker', 'Direction', 'ETF', 'Analyst', 'Remarks'])
 
         print ("=" * 55)
         print (" " * 20, " Events ")
         print ("=" * 55)
         for ticker in sorted(results):
-            for holding in results[ticker]:
-                t.add_row(holding)
+            for holding in reversed(sorted(results[ticker], key=lambda x: x[1])):
+                t.add_row(list(holding)[1:])
 
         print(t)
