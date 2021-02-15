@@ -31,7 +31,8 @@ class TickerPull(object):
         Updates 'tckr' history in local database.
         """
         with mydb.Ticker() as db:
-            if db.table_exists(tckr):
+            if db.table_exists(db.table_name(tckr)):
+                db.set_table(tckr)
                 start_date = db.max('date')
                 end_date = '%s' % datetime.date.today()
                 if start_date == end_date:
@@ -40,11 +41,10 @@ class TickerPull(object):
                                  start=start_date, end=end_date)
             else:
                 db.add_new_table(tckr)
+                db.set_table(tckr)
                 _tckr  = yfinance.Ticker(tckr)
                 # get historical market data
                 data = _tckr.history(period="max")
-
-            db.set_table(tckr)
             
             for index, row in data.iterrows():
                 try:
@@ -96,6 +96,6 @@ class ProfileUpdate(object):
             log.info("%s ... Skipped due to error" % tckr)
 
     def update_all(self, tckrs):
-        print ("Updating Historical data for : %s" %  ' '.join(tckrs))
+        print ("Updating Profile data for : %s" %  ' '.join(tckrs))
         params = [(tckr, (tckr,) , {}) for tckr in tckrs]
         parallel.ThreadPool(self._update, params)

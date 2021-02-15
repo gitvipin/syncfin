@@ -65,8 +65,9 @@ class Report(object):
         results = collections.defaultdict(list)
         with mydb.Ticker() as db:
             for tckr in tckrs:
-                if not db.table_exists(tckr):
+                if not db.table_exists(db.table_name(tckr)):
                     print ("No data available for ", tckr)
+                    continue
                 db.set_table(tckr)
                 try:
                     data = db.read()

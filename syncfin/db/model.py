@@ -32,7 +32,7 @@ class Ticker(db.Model):
         return '_%s_' % tckr
 
     def add_new_table(self, tckr):
-        if self.table_exists(tckr):
+        if self.table_exists(self.table_name(tckr)):
             return
         schema = dict(self.TABLE_SCHEMA)
         schema['name'] = self.table_name(tckr)
