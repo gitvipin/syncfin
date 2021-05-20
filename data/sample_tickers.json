@@ -1,0 +1,6 @@
+{
+    "FAANG":{
+        "tickers": ["FB", "AAPL", "AMZN", "NFLX", "GOOG"],
+        "riavls": ["DIS","TSLA"]
+    }
+}
