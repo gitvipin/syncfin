@@ -39,6 +39,9 @@ class TickerPull(object):
                     return  # Nothing to update.
                 data = yfinance.download(tckr,
                                  start=start_date, end=end_date)
+                # yfinance >= 1.0 returns MultiIndex columns; flatten them
+                if isinstance(data.columns, __import__('pandas').MultiIndex):
+                    data.columns = data.columns.get_level_values(0)
             else:
                 db.add_new_table(tckr)
                 db.set_table(tckr)
@@ -63,8 +66,8 @@ class TickerPull(object):
             try:
                 self.update(tckr)
                 print("%s ... Done" % tckr)
-            except Exception as _:
-                print("%s ... Skipped due to error" % tckr)
+            except Exception as err:
+                print("%s ... Skipped due to error: %s" % (tckr, err))
 
 
 class ProfileUpdate(object):

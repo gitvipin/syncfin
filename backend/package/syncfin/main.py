@@ -118,8 +118,7 @@ class SyncFin(object):
         days = int(self.args.days) if self.args.days else 45
 
         if self.args.update:
-            if self.args.ancient:
-                fetch.TickerPull().update_till_today(tckrs)
+            fetch.TickerPull().update_till_today(tckrs)
             if self.args.summary:
                 fetch.ProfileUpdate().update_all(tckrs)
             if self.args.etfs:
