@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import re
 import threading
 import time
 
@@ -94,9 +95,30 @@ class SyncFin(object):
             for fpath in self.args.file_tckr:
                 try:
                     with open(fpath, 'r') as fp:
-                        _tckrs_info.update(json.load(fp))
-                except Exception as _:
-                    pass
+                        # Try to load as JSON first
+                        content = fp.read()
+                        try:
+                            _tckrs_info.update(json.loads(content))
+                        except json.JSONDecodeError:
+                            # If not JSON, treat as plain text with tickers
+                            # Each line can have space/comma separated tickers
+                            for line in content.strip().split('\n'):
+                                line = line.strip()
+                                # Skip empty lines and comments
+                                if line and not line.startswith('#'):
+                                    # Split by space, comma, or newline
+                                    line_tickers = re.split(r'[\s,]+', line)
+                                    for t in line_tickers:
+                                        t = t.strip()
+                                        if t:
+                                            tckrs.append(t)
+                            continue
+                except FileNotFoundError:
+                    print(f"File not found: {fpath}")
+                    continue
+                except Exception as e:
+                    print(f"Error reading file {fpath}: {e}")
+                    continue
 
             if self.args.groups:
                 invalids = []
