@@ -1,7 +1,7 @@
 # SYNCFIN dependencies
-pali
-prettytable
+pali>=0.0.7
+prettytable>=3.17.0
 requests>=2.31.0
 sql30>=0.2.7
-xlrd
+xlrd>=2.0.2
 yfinance>=1.3.0
